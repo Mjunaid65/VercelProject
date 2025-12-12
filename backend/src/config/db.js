@@ -1,6 +1,20 @@
 import mongoose from 'mongoose';
 
+// Cache connection state
+let isConnected = false;
+let connectionPromise = null;
+
 const connectDB = async () => {
+  // If already connected, return
+  if (isConnected && mongoose.connection.readyState === 1) {
+    return;
+  }
+  
+  // If connection is in progress, wait for it
+  if (connectionPromise) {
+    return connectionPromise;
+  }
+  
   // Get connection string from environment or use default
   let uri = process.env.MONGO_URI || "mongodb+srv://mjunaidahmed3_db_user:Mjunaid65@junaid.arhutfr.mongodb.net/librarydb?appName=junaid";
   
@@ -22,13 +36,32 @@ const connectDB = async () => {
     }
   }
   
-  try {
-    await mongoose.connect(uri);
-    console.log('MongoDB connected to database:', mongoose.connection.db.databaseName);
-  } catch (error) {
-    console.error('MongoDB connection error:', error.message);
-    throw error;
-  }
+  // Create connection promise
+  connectionPromise = (async () => {
+    try {
+      // If already connecting or connected, don't reconnect
+      if (mongoose.connection.readyState === 1) {
+        isConnected = true;
+        return;
+      }
+      
+      // Close existing connection if any
+      if (mongoose.connection.readyState !== 0) {
+        await mongoose.connection.close();
+      }
+      
+      await mongoose.connect(uri);
+      isConnected = true;
+      console.log('MongoDB connected to database:', mongoose.connection.db.databaseName);
+    } catch (error) {
+      console.error('MongoDB connection error:', error.message);
+      isConnected = false;
+      connectionPromise = null; // Reset so we can retry
+      throw error;
+    }
+  })();
+  
+  return connectionPromise;
 };
 
 export default connectDB;
