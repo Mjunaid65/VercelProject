@@ -49,9 +49,10 @@ if (process.env.VERCEL !== '1') {
       process.exit(1);
     });
 } else {
-  // For Vercel, connect to DB on first request
+  // For Vercel, connect to DB on first request (non-blocking)
+  // Connection will be established when first API call is made
   connectDB().catch((err) => {
-    console.error('Failed to connect DB', err);
+    console.error('Failed to connect DB (will retry on next request):', err.message);
   });
 }
 
