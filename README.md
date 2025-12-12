@@ -45,7 +45,15 @@ Modern dashboard-style library app with JWT auth, role-based access (admin, libr
 - Reservations: `POST /api/reservations` (member), `GET /api/reservations` (admin/librarian), `GET /api/reservations/mine`, `PUT /api/reservations/:id/fulfill`
 - Activity: `GET /api/activity` (admin/librarian)
 
-## Deployment (AWS EC2 quick notes)
+## Deployment
+
+### Vercel Deployment (Recommended)
+This project is configured for easy deployment on Vercel. See:
+- `QUICK_START_VERCEL.md` - Quick 5-minute deployment guide
+- `VERCEL_DEPLOYMENT.md` - Detailed deployment documentation
+- `DEPLOYMENT_CHECKLIST.md` - Step-by-step checklist
+
+### AWS EC2 Deployment
 - Provision Ubuntu EC2, install Node, MongoDB (or connect to Atlas), and Nginx for reverse proxy.
 - Clone repo, set `.env` files, run `npm install` in both `/backend` and `/frontend`.
 - Build frontend: `npm run build` (serves static files via Nginx or `vite preview`).
@@ -67,4 +75,3 @@ Modern dashboard-style library app with JWT auth, role-based access (admin, libr
 3. Issue a book to the seeded member (copy their user id from Mongo).
 4. Return the book to trigger fine calculation and reservation wake-up.
 5. Reserve a book as the member when unavailable to see queue behavior.
-
