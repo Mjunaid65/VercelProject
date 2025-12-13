@@ -8,6 +8,7 @@ dotenv.config();
 
 const run = async () => {
   await connectDB();
+  console.log('Connected to database:', mongoose.connection.db.databaseName);
   await User.deleteMany({});
   await Book.deleteMany({});
 
