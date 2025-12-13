@@ -128,7 +128,16 @@ const Books = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const fd = new FormData();
-    Object.entries(form).forEach(([k, v]) => fd.append(k, v));
+    // Append all form fields except cover (which is handled separately)
+    Object.entries(form).forEach(([k, v]) => {
+      if (k !== 'cover') {
+        fd.append(k, v);
+      }
+    });
+    // Append cover file with the correct field name that multer expects
+    if (form.cover) {
+      fd.append('cover', form.cover);
+    }
     const request = editing
       ? api.put(`/books/${editing}`, fd)
       : api.post('/books', fd);
@@ -146,7 +155,8 @@ const Books = () => {
       category: book.category || '',
       year: book.year || '',
       description: book.description || '',
-      quantity: book.quantity
+      quantity: book.quantity,
+      cover: null // Reset cover when editing
     });
     setEditing(book._id);
   };
