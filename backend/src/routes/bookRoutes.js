@@ -1,6 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
+import os from 'os';
 import { fileURLToPath } from 'url';
 import { authorize, protect } from '../middleware/auth.js';
 import { createBook, deleteBook, getBook, listBooks, updateBook } from '../controllers/bookController.js';
@@ -12,8 +13,12 @@ const __dirname = path.dirname(__filename);
 // Multer destination should match the static file serving path in server.js
 // server.js serves from: path.join(__dirname, '..', 'uploads') where __dirname is backend/src
 // So we need: backend/src/../uploads = backend/uploads
+// Pick a writable uploads directory. On Vercel the project bundle is read-only
+// so use the system temp directory there. Allow override via UPLOADS_DIR env var.
+const uploadsDir = process.env.UPLOADS_DIR || (process.env.VERCEL === '1' ? os.tmpdir() : path.join(__dirname, '..', '..', 'uploads'));
+
 const storage = multer.diskStorage({
-  destination: path.join(__dirname, '..', '..', 'uploads'),
+  destination: uploadsDir,
   filename: (_req, file, cb) => {
     const unique = `${Date.now()}-${file.originalname}`;
     cb(null, unique);

@@ -23,7 +23,16 @@ export const getBook = async (req, res) => {
 
 export const createBook = async (req, res) => {
   const data = { ...req.body };
-  if (req.file) data.coverImage = `/uploads/${req.file.filename}`;
+  if (req.file) {
+    if (process.env.VERCEL === '1') {
+      // On Vercel the filesystem is read-only; uploads are written to tmpdir and
+      // won't be served from /uploads. Recommend using Cloudinary/S3 in production.
+      console.warn('Uploaded file saved to tmpdir on Vercel; set up cloud storage for persistent, accessible uploads.');
+      data.coverImage = null;
+    } else {
+      data.coverImage = `/uploads/${req.file.filename}`;
+    }
+  }
   data.available = data.quantity;
   const book = await Book.create(data);
   await logActivity(req.user?._id, 'book:create', 'Book', book._id, book.title);
@@ -34,7 +43,14 @@ export const updateBook = async (req, res) => {
   const book = await Book.findById(req.params.id);
   if (!book) return res.status(404).json({ message: 'Not found' });
   const updates = { ...req.body };
-  if (req.file) updates.coverImage = `/uploads/${req.file.filename}`;
+  if (req.file) {
+    if (process.env.VERCEL === '1') {
+      console.warn('Uploaded file saved to tmpdir on Vercel; set up cloud storage for persistent, accessible uploads.');
+      updates.coverImage = null;
+    } else {
+      updates.coverImage = `/uploads/${req.file.filename}`;
+    }
+  }
   const prevQty = book.quantity;
   Object.assign(book, updates);
   if (updates.quantity !== undefined) {
