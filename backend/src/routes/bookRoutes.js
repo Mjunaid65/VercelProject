@@ -9,8 +9,11 @@ const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Multer destination should match the static file serving path in server.js
+// server.js serves from: path.join(__dirname, '..', 'uploads') where __dirname is backend/src
+// So we need: backend/src/../uploads = backend/uploads
 const storage = multer.diskStorage({
-  destination: path.join(__dirname, '..', 'uploads'),
+  destination: path.join(__dirname, '..', '..', 'uploads'),
   filename: (_req, file, cb) => {
     const unique = `${Date.now()}-${file.originalname}`;
     cb(null, unique);
