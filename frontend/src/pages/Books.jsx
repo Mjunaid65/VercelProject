@@ -12,8 +12,21 @@ const empty = {
   description: '',
   quantity: 1
 };
-// near the top of Books component
-const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api$/, '');
+// Get API base URL for image paths
+const getApiBase = () => {
+  // If VITE_API_URL is set, use it and remove /api suffix
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL.replace(/\/api$/, '');
+  }
+  
+  // In production (Vercel), use relative path
+  if (import.meta.env.PROD) {
+    return ''; // Empty string for relative paths
+  }
+  
+  // Development: use localhost
+  return 'http://localhost:5000';
+};
 
 const Books = () => {
   const { user } = useAuth();
@@ -213,9 +226,13 @@ const Books = () => {
             <div className="overflow-hidden rounded-lg bg-slate-100 h-40 w-full">
                 {book.coverImage && (
                 <img
-                    src={`${apiBase}${book.coverImage}`}
+                    src={`${getApiBase()}${book.coverImage}`}
                     alt={book.title}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      // Fallback if image fails to load
+                      e.target.style.display = 'none';
+                    }}
                 />
                 )}
             </div>
