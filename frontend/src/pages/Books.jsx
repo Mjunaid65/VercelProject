@@ -232,21 +232,23 @@ const Books = () => {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {books.map((book) => (
-            <div key={book._id} className="card p-4 space-y-3">
+        {books.map((book) => {
+          const imgSrc = book.coverImage ? (/^https?:\/\//i.test(book.coverImage) ? book.coverImage : `${getApiBase()}${book.coverImage}`) : null;
+          return (
+          <div key={book._id} className="card p-4 space-y-3">
             <div className="overflow-hidden rounded-lg bg-slate-100 h-40 w-full flex items-center justify-center">
-                {book.coverImage ? (
+                {imgSrc ? (
                 <img
-                    src={`${getApiBase()}${book.coverImage}`}
+                    src={imgSrc}
                     alt={book.title}
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       // Fallback if image fails to load
-                      console.error('Image failed to load:', `${getApiBase()}${book.coverImage}`);
+                      console.error('Image failed to load:', imgSrc);
                       e.target.style.display = 'none';
                     }}
                     onLoad={() => {
-                      console.log('Image loaded successfully:', `${getApiBase()}${book.coverImage}`);
+                      console.log('Image loaded successfully:', imgSrc);
                     }}
                 />
                 ) : (
