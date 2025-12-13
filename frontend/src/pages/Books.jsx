@@ -287,6 +287,7 @@ const Books = () => {
               )}
             </div>
           </div>
+          );
         })}
       </div>
 
