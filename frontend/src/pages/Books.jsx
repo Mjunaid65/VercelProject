@@ -16,12 +16,13 @@ const empty = {
 const getApiBase = () => {
   // If VITE_API_URL is set, use it and remove /api suffix
   if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL.replace(/\/api$/, '');
+    const base = import.meta.env.VITE_API_URL.replace(/\/api$/, '');
+    return base || '';
   }
   
-  // In production (Vercel), use relative path
+  // In production (Vercel), use relative path (empty string)
   if (import.meta.env.PROD) {
-    return ''; // Empty string for relative paths
+    return '';
   }
   
   // Development: use localhost
@@ -233,17 +234,23 @@ const Books = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {books.map((book) => (
             <div key={book._id} className="card p-4 space-y-3">
-            <div className="overflow-hidden rounded-lg bg-slate-100 h-40 w-full">
-                {book.coverImage && (
+            <div className="overflow-hidden rounded-lg bg-slate-100 h-40 w-full flex items-center justify-center">
+                {book.coverImage ? (
                 <img
                     src={`${getApiBase()}${book.coverImage}`}
                     alt={book.title}
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       // Fallback if image fails to load
+                      console.error('Image failed to load:', `${getApiBase()}${book.coverImage}`);
                       e.target.style.display = 'none';
                     }}
+                    onLoad={() => {
+                      console.log('Image loaded successfully:', `${getApiBase()}${book.coverImage}`);
+                    }}
                 />
+                ) : (
+                  <span className="text-slate-400 text-sm">No cover image</span>
                 )}
             </div>
             <div className="flex justify-between items-start">

@@ -1,11 +1,16 @@
 import express from 'express';
 import multer from 'multer';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { authorize, protect } from '../middleware/auth.js';
 import { createBook, deleteBook, getBook, listBooks, updateBook } from '../controllers/bookController.js';
 
 const router = express.Router();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const storage = multer.diskStorage({
-  destination: 'backend/uploads',
+  destination: path.join(__dirname, '..', 'uploads'),
   filename: (_req, file, cb) => {
     const unique = `${Date.now()}-${file.originalname}`;
     cb(null, unique);
